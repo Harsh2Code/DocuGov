@@ -1,6 +1,9 @@
 import admin from 'firebase-admin';
+import { createRequire } from 'module';
 
-const serviceAccount = require('../../path/to/your/serviceAccountKey.json');
+const require = createRequire(import.meta.url);
+const serviceAccount = require('../serviceAccountKey.json');
+
 const BUCKET_NAME = 'your-project-id.appspot.com';
 
 admin.initializeApp({
@@ -9,12 +12,13 @@ admin.initializeApp({
 });
 
 const bucket = admin.storage().bucket();
-/** 
-* @param {string} filePath 
+
+/**
+* @param {string} filePath
 * @param {number} expirationMinutes - URL validity Duration
 */
 
-export const generateSigndUrl = async (filePath, expirationMinutes = 60) => {
+export const generateSignedUrl = async (filePath, expirationMinutes = 60) => {
     const options = {
         version: 'v4',
         action: 'read',
