@@ -2,23 +2,23 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ShareIcon, ClockIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
 
-const DocList = ({ doucments }) => {
-    const [sharindDocId, setSharindDocId] = useState(null);
+const DocList = ({ documents }) => {
+    const [sharingDocId, setSharingDocId] = useState(null);
     const [shareUrl, setShareUrl] = useState('');
     const [message, setMessage] = useState('');
 
     const handleShare = async (docId) => {
         setSharingDocId(docId);
         setShareUrl('');
-        setMessage('Generatin Secure Link');
+        setMessage('Generating Secure Link');
 
         try {
             const res = await axios.post(`/api/documents/share/${docId}`);
 
             setShareUrl(res.data.shareUrl);
-            setMessage(`Link Generate!, Expires by ${res.data.expiresIn}`)
+            setMessage(`Link Generated! Expires in ${res.data.expiresIn}`)
         } catch (err) {
-            setMessage('Error: Failed to genrate secure Link. Check Console.');
+            setMessage('Error: Failed to generate secure link. Check console.');
             console.error(err.response ? err.response.data : err.message);
         } finally {
             setSharingDocId(null);

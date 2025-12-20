@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { auth } from '../firebaseConfig';
+import { signOut } from 'firebase/auth';
 import DocList from '../components/DocList'; // The file we created earlier
 import { PlusIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 
@@ -14,6 +16,16 @@ const Dashboard = () => {
     ]);
   }, []);
 
+  const handleLogout = () => {
+  signOut(auth).then(() => {
+    localStorage.removeItem('token'); // Clear backend JWT
+    window.location.href = '/login';   // Redirect to login
+  })
+  .catch((error) => {
+    console.error("Logout Error: ", error);
+  });
+};
+
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
@@ -23,7 +35,7 @@ const Dashboard = () => {
             <ShieldCheckIcon className="h-8 w-8 text-indigo-600" />
             <span className="text-xl font-bold text-gray-800">GovVault</span>
           </div>
-          <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+          <button onClick={handleLogout} className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
             Logout
           </button>
         </div>

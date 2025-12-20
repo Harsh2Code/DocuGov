@@ -1,45 +1,46 @@
 import express from 'express';
-import { generateSignedUrl } from '../config/firebase.js' 
 import Document from '../models/Document.js';
-import ShareLog from '../models/ShareLog.js';
 import auth from '../middleware/auth.js';
+import { generateSignedUrl } from '../config/firebase.js';
 
 const router = express.Router();
 
-router.post('/share/:docId', auth, async (req,res) => {
-    const {docId} = req.params;
-    const userId = req.user.id;
-    
-    try {
-        const document  = await Document.findOne({_id: docId, userRef: userId });
-        if( !document ) {
-            return res.status(404).json({msg: 'Document not found or access denied' });
-        }
-
-    const EXPIRATION_MINUTES = 60;
-
-    const signedUrl = await generateSignedUrl(document.storagePath, EXPIRATION_MINUTES);
-
-    // create a ShareLog entry
-    const newLog = new ShareLog({
-        documentId: document._id,
-        sharerUID: userId,
-        signedUrl: signedUrl,
-        expirationTime: new Date(Date.now() + EXPIRATION_MINUTES * 60 * 1000),
-        accessCount: 0,
-        maxAccess: 1,
+// 1. SAVE metadata after frontend upload
+router.post('/add', auth, async (req, res) => {
+  try {
+    const newDoc = new Document({
+      userRef: req.user.id,
+      docType: req.body.docType,
+      storagePath: req.body.storagePath
     });
-    await newLog.save();
-
-    res.json ({
-        msg: 'Share link Successfully generated.',
-        shareUrl: signedUrl,
-        expiresIn: `${EXPIRATION_MINUTES} minutes`
-    })
-} catch (err) {
-    console.error(err.message);
+    const doc = await newDoc.save();
+    res.json(doc);
+  } catch (err) {
     res.status(500).send('Server Error');
-}
-})
+  }
+});
+
+// 2. GET all documents for the logged-in user
+router.get('/list', auth, async (req, res) => {
+  try {
+    const docs = await Document.find({ userRef: req.user.id }).sort({ uploadDate: -1 });
+    res.json(docs);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// 3. SHARE (The logic we wrote earlier)
+router.post('/share/:docId', auth, async (req, res) => {
+  try {
+    const document = await Document.findOne({ _id: req.params.docId, userRef: req.user.id });
+    if (!document) return res.status(404).json({ msg: 'Not found' });
+
+    const signedUrl = await generateSignedUrl(document.storagePath, 60);
+    res.json({ shareUrl: signedUrl, expiresIn: '60 minutes' });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
 
 export default router;
