@@ -1,30 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { auth } from '../firebaseConfig';
-import { signOut } from 'firebase/auth';
+import axios from 'axios';
 import DocList from '../components/DocList'; // The file we created earlier
 import { PlusIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 const Dashboard = () => {
   const [docs, setDocs] = useState([]);
 
-  // In a real app, you'd fetch this from your Express API
+  // Fetch documents from backend
   useEffect(() => {
-    // Example data structure
-    setDocs([
-      { _id: '1', docType: 'PAN Card', uploadDate: new Date(), storagePath: 'users/123/pan.jpg' },
-      { _id: '2', docType: 'Passport', uploadDate: new Date(), storagePath: 'users/123/pass.jpg' }
-    ]);
+    const fetchDocs = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:5000/api/documents/list', {
+          headers: { 'x-auth-token': token }
+        });
+        setDocs(res.data);
+      } catch (err) {
+        console.error('Error fetching documents:', err);
+      }
+    };
+    fetchDocs();
   }, []);
 
   const handleLogout = () => {
-  signOut(auth).then(() => {
-    localStorage.removeItem('token'); // Clear backend JWT
-    window.location.href = '/login';   // Redirect to login
-  })
-  .catch((error) => {
-    console.error("Logout Error: ", error);
-  });
-};
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">

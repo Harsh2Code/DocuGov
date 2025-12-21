@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { auth } from '../firebaseConfig';
-import { signInWithEmailAndPassword } from 'firebase/auth';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -12,11 +10,13 @@ const Login = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try{
-            const userCredential = await signInWithEmailAndPassword(auth, email, password);
-            const res = await axios.post('http://localhost:5000/api/auth/sync', { firebaseUID: userCredential.user.uid });
+            const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
             localStorage.setItem('token',res.data.token);
             navigate('/dashboard');
-        } catch (err) { alert( "Invalid Credential, try again 🔁")}
+        } catch (err) {
+            const errorMessage = err.response?.data?.msg || 'Invalid credentials, try again 🔁';
+            alert(errorMessage);
+        }
     }
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">

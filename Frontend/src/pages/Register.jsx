@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import { auth } from '../firebaseConfig';
-import {createUserWithEmailAndPassword } from 'firebase/auth';
 import axios from 'axios';
 import {useNavigate } from 'react-router-dom';
 
@@ -41,35 +39,16 @@ const Register = () => {
         }
 
         try {
-            const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-            const uid = userCredential.user.uid;
-
-            const res = await axios.post('http://localhost:5000/api/auth/sync', {
-                firebaseUID: uid,
+            const res = await axios.post('http://localhost:5000/api/auth/register', {
                 name: formData.name,
                 email: formData.email,
+                password: formData.password,
                 aadhaarNumber: formData.aadhaar
             });
             localStorage.setItem('token', res.data.token);
             navigate('/dashboard');
         } catch (err) {
-            let errorMessage = 'An error occurred during registration.';
-            switch (err.code) {
-                case 'auth/weak-password':
-                    errorMessage = 'Password is too weak. Please choose a stronger password.';
-                    break;
-                case 'auth/email-already-in-use':
-                    errorMessage = 'An account with this email already exists.';
-                    break;
-                case 'auth/invalid-email':
-                    errorMessage = 'Invalid email address.';
-                    break;
-                case 'auth/operation-not-allowed':
-                    errorMessage = 'Email/password accounts are not enabled. Please contact support.';
-                    break;
-                default:
-                    errorMessage = err.message || errorMessage;
-            }
+            const errorMessage = err.response?.data?.msg || 'An error occurred during registration.';
             alert(errorMessage);
         }
     };

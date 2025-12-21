@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const DocumentSchema = new mongoose.Schema({
-    userRaf: {
+    userRef: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
