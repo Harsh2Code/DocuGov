@@ -20,7 +20,7 @@ const DocumentSchema = new mongoose.Schema({
         type: String,
         required: false,
     },
-    uploadData: {
+    uploadDate: {
         type: Date,
         default: Date.now
     },

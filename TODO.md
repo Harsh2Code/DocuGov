@@ -1,8 +1,5 @@
-# TODO: Fix Firebase SignUp 400 Error
+# TODO: Fix Document Previews
 
-## Steps to Complete
-- [x] Add client-side validation functions for email, password, and Aadhaar in Register.jsx
-- [x] Update handleRegister function to validate form data before Firebase authentication
-- [x] Improve error handling in handleRegister to provide user-friendly messages based on Firebase error codes
-- [x] Create Frontend/.env with Firebase configuration
-- [ ] Test the registration flow to ensure the 400 error is resolved
+- [x] Fix multer filename generation in Backend/routes/document.js to ensure files are saved correctly
+- [x] Update DocumentsPage.jsx to display PDF icon instead of iframe in the grid for better preview
+- [x] Test the fixes by uploading a document and checking previews on DocumentsPage and in FileModal

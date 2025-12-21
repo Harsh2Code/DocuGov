@@ -1,7 +1,5 @@
 import React from 'react'
 import { Link, useNavigate } from 'react-router-dom';
-import { auth } from '../firebaseConfig';
-import {signOut} from 'firebase/auth';
 import {ShieldCheckIcon} from '@heroicons/react/24/solid';
 
 const Navbar = () => {

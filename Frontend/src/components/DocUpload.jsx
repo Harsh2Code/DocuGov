@@ -1,26 +1,30 @@
 import React, {useState} from 'react';
-import {storage} from '../firebaseConfig';
-import {ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import axios from 'axios';
 
-const DocUpload = ({ userId }) => {
+const DocUpload = ({ userId, onUploadSuccess }) => {
     const [file, setFile] = useState(null);
     const [type, setType] = useState('PAN Card');
 
     const handleUpload = async () => {
-        if (!file) return alert ("select a file first0");
+        if (!file) return alert("Select a file first");
 
-        const storageRef = ref(storage, `credentials/${userId}/${type}/${file.name}`);
-        await uploadBytes(storageRef, file);
-        const url = await getDownloadURL(storageRef);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('docType', type);
 
-        await axios.post('/api/document/add', {
-            docType: type,
-            storagePath: storageRef.fullPath,
-            downloadURL: url
-        },{ headers: {'x-auth-token': localStorage.getItem('token')}});
+        try {
+            await axios.post('http://localhost:5000/api/document/update', formData, {
+                headers: {
+                    'x-auth-token': localStorage.getItem('token'),
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
-        alert("Upload Successful ✈️");
+            alert("Upload Successful ✈️");
+            if (onUploadSuccess) onUploadSuccess();
+        } catch (error) {
+            alert("Upload failed: " + error.message);
+        }
     };
 
     return (
