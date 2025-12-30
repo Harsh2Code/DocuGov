@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-
 import DocList from '../components/DocList'; // The file we created earlier
 import DocUpload from '../components/DocUpload'; // Import DocUpload component
 import { FolderIcon, ArrowRightIcon, PlusIcon, ShieldCheckIcon } from '@heroicons/react/24/solid';
+import { LuLayoutTemplate, LuView, LuUser } from "react-icons/lu";
+import Dock from '../components/Dock';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
-      <nav className="bg-white shadow-sm border-b">
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <ShieldCheckIcon className="h-8 w-8 text-indigo-600" />
@@ -55,7 +56,7 @@ const Dashboard = () => {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto py-12 px-4">
+      <main className="max-w-6xl mx-auto py-12 px-4 pt-20">
         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
           
           {/* Quick Stats / Welcome */}
@@ -87,6 +88,46 @@ const Dashboard = () => {
           </div>
 
         </div>
+
+        <div className='w-full flex flex-col md:flex-row items-center gap-8 md:gap-24 my-16 md:my-32'>
+          <div className='w-full md:w-[60%] text-center md:text-left py-8 md:py-24'>
+            <h1 className='text-2xl md:text-3xl font-bold my-4 px-4 md:px-8'>Finding files made easy.
+              {/* <div className="w-xl bg-indigo-600 block" style={{boxShadow: 'rgba(94, 35, 195, 1) -8px 10px 10px' }}>tada</div> */}
+            </h1>
+            <h1 className='text-lg md:text-xl font-light px-4 md:px-8'>
+              Your files are stored and managed from hightech and secured Server. No worries for you here!
+            </h1>
+          </div>
+          <div className='w-full md:w-[40%] flex justify-center'>
+            <img src="/Server-rafiki.svg" alt="Server illustration" className="max-w-full h-auto" />
+          </div>
+        </div>
+        <div className='w-full flex flex-col md:flex-row items-center gap-8 md:gap-16 my-16 md:my-32'>
+          <div className='w-full md:w-[40%] flex justify-center order-2 md:order-1'>
+            <img src="/No data-cuate.svg" alt="No data illustration" className="max-w-full h-auto" />
+          </div>
+          <div className='w-full md:w-[50%] text-center md:text-left py-8 md:py-24 order-1 md:order-2'>
+            <h1 className='text-2xl md:text-3xl font-bold my-4 px-4 md:px-8'>Trouble! No more</h1>
+            <h1 className='text-lg md:text-xl font-light px-4 md:px-8'>You for sure once was troubled to find that one document whole day.
+              well now those days has been to an end -VaultGov
+            </h1>
+          </div>
+        </div>
+        <div className='w-full flex flex-col md:flex-row items-center gap-8 md:gap-24'>
+          <div className='w-full md:w-[60%] text-center md:text-left py-8 md:py-24'>
+            <h1 className='text-2xl md:text-3xl font-bold py-4 px-4 md:px-8'>Just One Click Away
+            </h1>
+              <h1 className='text-lg md:text-xl font-light px-4 md:px-8'>
+                your job just glide your fingers...
+                those days struggling to find your important documents are gone
+              </h1>
+          </div>
+          <div className='w-full md:w-[40%] flex justify-center'>
+            <img src="/Hard drive-rafiki.svg" alt="Hard drive illustration" className="max-w-full h-auto" />
+          </div>
+        </div>
+
+        <Dock />
       </main>
 
       {/* Modal for Upload */}

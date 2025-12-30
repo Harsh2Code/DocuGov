@@ -22,6 +22,13 @@ const Navbar = () => {
           <span className="text-xl font-bold text-gray-800">GovVault</span>
         </Link>
 
+        <div className='text-[1rem] flex gap-4'>
+
+          <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600 font-medium">Dashboard</Link>
+          <Link to="/vault" className="text-gray-600 hover:text-indigo-600 font-medium">Vault</Link>
+          <Link to="/Profile" className="text-gray-600 hover:text-indigo-600 font-medium">Profile</Link>
+        </div>
+
         {/* Links */}
         <div className="space-x-4">
           {!token ? (
@@ -31,7 +38,6 @@ const Navbar = () => {
             </>
           ) : (
             <>
-              <Link to="/dashboard" className="text-gray-600 hover:text-indigo-600 font-medium">Dashboard</Link>
               <button 
                 onClick={handleLogout} 
                 className="text-red-500 hover:text-red-700 font-medium border border-red-200 px-3 py-1 rounded-md"

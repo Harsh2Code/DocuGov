@@ -1,19 +1,57 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios';
+import { supabase } from '../supabase';
 
 const FileModal = ({ doc, onClose, refresh }) => {
-  const fileUrl = `http://localhost:5000/${doc.storagePath}`;
+  const [fileUrl, setFileUrl] = useState(null);
+
+  useEffect(() => {
+    const fetchSignedUrl = async () => {
+      try {
+        const { data, error } = await supabase.storage
+          .from('VaultGov')
+          .createSignedUrl(doc.storagePath, 3600); // 1 hour expiry
+        if (error) throw error;
+        setFileUrl(data.signedUrl);
+      } catch (err) {
+        console.error('Error getting signed URL', err);
+      }
+    };
+    fetchSignedUrl();
+  }, [doc.storagePath]);
+
   const isImage = /\.(jpg|jpeg|png|webp)$/i.test(doc.storagePath);
   const isPDF = /\.pdf$/i.test(doc.storagePath);
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this document? ")) return;
-    await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
-      headers: { 'x-auth-token': localStorage.getItem('token') }
-    });
-    refresh();
-    onClose();
-  };
+    if (!window.confirm("Delete permanently?")) return;
+
+    try {
+        // Log this to compare with what you see in Supabase Dashboard
+        console.log("Deleting Path:", doc.storagePath);
+
+        const { data, error } = await supabase.storage
+            .from('VaultGov')
+            .remove([doc.storagePath]);
+
+        if (error) throw error;
+
+        // If data is empty, the file wasn't found at that path
+        if (data.length === 0) {
+            console.warn("File not found in Supabase, but cleaning up MongoDB anyway.");
+        }
+
+        await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
+            headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+
+        alert("Deleted successfully");
+        refresh();
+        onClose();
+    } catch (err) {
+        alert("Error: " + err.message);
+    }
+};
 
   // Share Logic
   const handleShare = async () => {
@@ -33,7 +71,7 @@ const FileModal = ({ doc, onClose, refresh }) => {
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-white rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-        
+
         {/* HEADER */}
         <div className="p-4 border-b flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800">{doc.docType}</h2>
