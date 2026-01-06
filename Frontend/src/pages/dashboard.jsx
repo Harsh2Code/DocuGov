@@ -60,8 +60,8 @@ const Dashboard = () => {
         <div className="flex flex-col md:flex-row justify-between items-start gap-8">
           
           {/* Quick Stats / Welcome */}
-          <div className="flex-1">
-            <h1 className="text-4xl font-extrabold text-gray-900 mb-2">Hello, Citizen</h1>
+          <div className="flex-1 mt-14">
+            <h1 className="text-5xl font-extrabold text-gray-900 mb-2">Hello, Citizen</h1>
             <p className="text-gray-600 mb-8">Securely manage your government-issued credentials.</p>
             
             {/* THE NEW REDIRECT BUTTON */}

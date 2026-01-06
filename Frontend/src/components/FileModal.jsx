@@ -27,31 +27,31 @@ const FileModal = ({ doc, onClose, refresh }) => {
     if (!window.confirm("Delete permanently?")) return;
 
     try {
-        // Log this to compare with what you see in Supabase Dashboard
-        console.log("Deleting Path:", doc.storagePath);
+      // Log this to compare with what you see in Supabase Dashboard
+      console.log("Deleting Path:", doc.storagePath);
 
-        const { data, error } = await supabase.storage
-            .from('VaultGov')
-            .remove([doc.storagePath]);
+      const { data, error } = await supabase.storage
+        .from('VaultGov')
+        .remove([doc.storagePath]);
 
-        if (error) throw error;
+      if (error) throw error;
 
-        // If data is empty, the file wasn't found at that path
-        if (data.length === 0) {
-            console.warn("File not found in Supabase, but cleaning up MongoDB anyway.");
-        }
+      // If data is empty, the file wasn't found at that path
+      if (data.length === 0) {
+        console.warn("File not found in Supabase, but cleaning up MongoDB anyway.");
+      }
 
-        await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
-            headers: { 'x-auth-token': localStorage.getItem('token') }
-        });
+      await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
+        headers: { 'x-auth-token': localStorage.getItem('token') }
+      });
 
-        alert("Deleted successfully");
-        refresh();
-        onClose();
+      alert("Deleted successfully");
+      refresh();
+      onClose();
     } catch (err) {
-        alert("Error: " + err.message);
+      alert("Error: " + err.message);
     }
-};
+  };
 
   // Share Logic
   const handleShare = async () => {
@@ -69,8 +69,11 @@ const FileModal = ({ doc, onClose, refresh }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 backdrop-blur-sm"
+      style={{
+        boxShadow: "inset rgba(255, 255, 255, 1) 1px 3px 5px, 0 3px 5px #00000030"
+      }}>
+      <div className="bg-white rounded-2xl max-w-4xl w-full h-[90vh] flex flex-col overflow-hidden shadow-2xl" >
 
         {/* HEADER */}
         <div className="p-4 border-b flex justify-between items-center">

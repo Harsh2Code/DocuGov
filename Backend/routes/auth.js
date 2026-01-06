@@ -68,6 +68,6 @@ router.post('/login', async (req, res) => {
         console.log('Login error:', err);
         res.status(500).send('Server Error');
     }
-});fd
+});
 
 export default router;
