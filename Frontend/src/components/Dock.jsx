@@ -8,7 +8,7 @@ const Dock = () => {
 
   return (
     <div
-      className="dock dock-lg w-2/10 mx-auto flex justify-center items-center gap-16 bg-gray-50 border-gray-400 p-2 py-4 fixed bottom-5 left-0 right-0 z-50 rounded-lg"
+      className="dock dock-lg w-2/10 mx-auto flex justify-center items-center gap-16 bg-gray-50 p-2 py-4 fixed bottom-5 left-0 right-0 z-50 rounded-lg"
       style={{
               boxShadow: "inset rgba(255, 255, 255, 1) 1px 3px 5px, 0 3px 5px #00000030"
             }}
