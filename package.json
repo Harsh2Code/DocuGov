@@ -8,13 +8,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npm install && cd Backend && npm install",
     "start": "cd Backend && npm start"
-  },
-  "dependencies": {
-    "@tailwindcss/postcss": "^4.1.18",
-    "@tailwindcss/vite": "^4.1.18",
-    "npx": "^10.2.2",
-    "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.18"
-  }
+},
+"dependencies": {
+  "@tailwindcss/postcss": "^4.1.18",
+  "@tailwindcss/vite": "^4.1.18",
+  "npx": "^10.2.2",
+  "postcss": "^8.5.6",
+  "tailwindcss": "^4.1.18"
+}
 }
