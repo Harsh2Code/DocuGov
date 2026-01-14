@@ -54,18 +54,10 @@ const FileModal = ({ doc, onClose, refresh }) => {
   };
 
   // Share Logic
-  const handleShare = async () => {
-    try {
-      const res = await axios.get(`http://localhost:5000/api/document/share/${doc._id}`, {
-        headers: { 'x-auth-token': localStorage.getItem('token') }
-      });
-
-      // copy link to clipboard
-      navigator.clipboard.writeText(res.data.shareUrl);
-      alert("Share link copied to clipboard");
-    } catch (err) {
-      alert(" Could not generate share link ");
-    }
+  const handleShare = () => {
+    const shareUrl = `${window.location.origin}/shared/${doc._id}`;
+    navigator.clipboard.writeText(shareUrl);
+    alert("Share link copied to clipboard");
   };
 
   return (
@@ -102,6 +94,9 @@ const FileModal = ({ doc, onClose, refresh }) => {
         <div className="p-4 bg-white border-t flex justify-around">
           <button onClick={() => window.open(fileUrl, '_blank')} className="flex items-center gap-2 text-indigo-600 font-bold">
             <span>👁️</span> Full Screen
+          </button>
+          <button onClick={handleShare} className="flex items-center gap-2 text-green-600 font-bold">
+            <span>🔗</span> Share
           </button>
           <button onClick={handleDelete} className="text-red-500 font-bold">
             <span>🗑️</span> Delete

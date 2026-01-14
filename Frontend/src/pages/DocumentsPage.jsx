@@ -9,6 +9,7 @@ const DocumentsPage = () => {
     const [docs, setDocs] = useState([]);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [fileUrls, setFileUrls] = useState({})
+    const [selectedLogo, setSelectedLogo] = useState("Self");
     const logos = {
         aadhar: {
             title: "Aadhar Card",
@@ -135,7 +136,7 @@ const DocumentsPage = () => {
                     {/* Page content here */}
                     <div className="p-4 overflow-x-hidden">
                         <div className="grid grid-cols-1 sm:grid-cols-2 mt-24 lg:grid-cols-4 gap-6">
-                            {docs.map(doc => {
+                            {docs.filter(doc => selectedLogo === "Self" || doc.docType === selectedLogo).map(doc => {
                                 const fileUrl = fileUrls[doc._id];
 
                                 return (
@@ -200,8 +201,8 @@ const DocumentsPage = () => {
 
                             <div className="grid grid-cols-1 is-drawer-open:grid-cols-2 gap-2 mb-4">
                                 {Object.values(logos).map(logo => (
-                                    <div key={logo.title} className='flex flex-col items-center'>
-                                        <span className='w-16 h-16 bg-white rounded-full shadow-lg overflow-hidden flex-shrink-0'>
+                                    <div key={logo.title} className='flex flex-col items-center cursor-pointer' onClick={() => setSelectedLogo(logo.title)}>
+                                        <span className={`w-16 h-16 bg-white rounded-full shadow-lg overflow-hidden flex-shrink-0 ${selectedLogo === logo.title ? 'border-2 border-indigo-500' : ''}`}>
                                             <img src={logo.path} className='w-12 h-12 m-2 object-contain' alt={logo.title} />
                                         </span>
                                         <p className="w-16 font-medium text-center is-drawer-close:hidden">

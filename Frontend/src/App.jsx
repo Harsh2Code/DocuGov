@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/dashboard';
 import DocumentsPage from './pages/DocumentsPage';
+import SharedDocument from './pages/SharedDocument';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -28,6 +29,7 @@ function App() {
           path="/dashboard"
           element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
         />
+        <Route path="/shared/:id" element={<SharedDocument />} />
         <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </Router>

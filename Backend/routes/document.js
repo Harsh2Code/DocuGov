@@ -1,27 +1,27 @@
 import express from 'express';
 import Document from '../models/Document.js';
 import auth from '../middleware/auth.js';
-import fs from 'fs';
 import multer from 'multer';
 import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, 'uploads/'),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
+dotenv.config();
+
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
 const upload = multer({
-   storage,
-   fileFilter: (req, file , cb) => {
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
     const allowedTypes = ['.pdf', '.doc', '.docx', '.png', '.jpg', '.jpeg'];
     const ext = path.extname(file.originalname).toLowerCase();
     if (allowedTypes.includes(ext)) {
-      cb (null, true);
+      cb(null, true);
     } else {
       cb(new Error("only images, PDF and Word docs are allowed"));
     }
-   }
-  });
+  }
+});
 
 const router = express.Router();
 
@@ -49,13 +49,25 @@ router.post('/update', [auth, upload.single('file')], async (req,res) => {
       docType: docType
     });
 
+    const filePath = `user_docs/${Date.now()}-${req.file.originalname}`;
+
+    // Upload to Supabase
+    const { data, error } = await supabase.storage
+      .from('VaultGov')
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: false
+      });
+
+    if (error) throw error;
+
     if (existingDoc) { // Check for existing file and request of update
-      if(fs.existsSync(existingDoc.storagePath)) {
-        fs.unlinkSync(existingDoc.storagePath);
-      }
+      // Delete old file from Supabase
+      const { error: deleteError } = await supabase.storage.from('VaultGov').remove([existingDoc.storagePath]);
+      if (deleteError) console.error('Error deleting old file:', deleteError);
 
       // update With new File
-      existingDoc.storagePath = 'uploads/' + req.file.filename;
+      existingDoc.storagePath = filePath;
       existingDoc.uploadDate = Date.now();
       await existingDoc.save();
       return res.json({ msg: 'Document updated successfully', doc: existingDoc });
@@ -64,7 +76,7 @@ router.post('/update', [auth, upload.single('file')], async (req,res) => {
       const newDoc = new Document ({
       userRef: req.user.id,
       docType,
-      storagePath: 'uploads/' + req.file.filename
+      storagePath: filePath
     });
 
     await newDoc.save();
@@ -84,15 +96,50 @@ router.get('/list', auth, async (req, res) => {
   }
 });
 
-// 3. SHARE (Placeholder since Firebase removed)
+// 3. SHARE (Generate share URL)
 router.get('/share/:id', auth, async (req, res) => {
   try {
     const document = await Document.findById( req.params.id );
     if (!document) return res.status(404).json({ msg: 'Not found' });
 
-    // url not visible. hardcoding url
-    const fullUrl = `http://localhost:5000/${document.storagePath}`
-    res.json({ shareUrl: fullUrl });
+    // Generate share URL to the frontend page
+    const shareUrl = `${process.env.FRONTEND_URL || 'http://localhost:5174'}/shared/${req.params.id}`;
+    res.json({ shareUrl });
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// 3.5 PUBLIC ACCESS to shared document (no auth required)
+router.get('/public/:id', async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+    if (!document) return res.status(404).json({ msg: 'Not found' });
+
+    // Generate signed URL for public access (works for private buckets)
+    const { data, error } = await supabase.storage.from('VaultGov').createSignedUrl(document.storagePath, 86400); // 24 hours expiry
+    if (error) throw error;
+    res.redirect(data.signedUrl);
+  } catch (err) {
+    res.status(500).send('Server Error');
+  }
+});
+
+// 3.6 GET SHARED DOCUMENT DATA (no auth required)
+router.get('/get-shared/:id', async (req, res) => {
+  try {
+    const document = await Document.findById(req.params.id);
+    if (!document) return res.status(404).json({ msg: 'Document not found' });
+
+    // Generate signed URL
+    const { data, error } = await supabase.storage.from('VaultGov').createSignedUrl(document.storagePath, 86400); // 24 hours expiry
+    if (error) throw error;
+
+    res.json({
+      signedUrl: data.signedUrl,
+      docType: document.docType,
+      uploadDate: document.uploadDate
+    });
   } catch (err) {
     res.status(500).send('Server Error');
   }
@@ -105,9 +152,11 @@ router.delete('/:id', auth, async (req,res) => {
     if (!document) return res.status(404).json({msg: 'Document Not Found' });
     if (document.userRef.toString() !== req.user.id) return res.status(401).json({msg: 'Unauthorized'});
 
-    // Deleting logic if Found
-    if (fs.existsSync( document.storagePath )) {
-      fs.unlinkSync( document.storagePath );
+    // Delete from Supabase storage
+    const { error } = await supabase.storage.from('VaultGov').remove([document.storagePath]);
+    if (error) {
+      console.error('Error deleting from Supabase:', error);
+      // Continue with DB deletion even if storage deletion fails
     }
 
     await document.deleteOne();
