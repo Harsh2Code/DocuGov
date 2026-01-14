@@ -8,7 +8,10 @@ import documentRoutes from './routes/document.js';
 dotenv.config();
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: ['https://docu-gov.vercel.app', 'http://localhost:5173'],
+  credentials: true
+}));
 app.use(express.json());
 
 mongoose.connect(process.env.Mongo_URI)
