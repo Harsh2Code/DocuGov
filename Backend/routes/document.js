@@ -103,7 +103,7 @@ router.get('/share/:id', auth, async (req, res) => {
     if (!document) return res.status(404).json({ msg: 'Not found' });
 
     // Generate share URL to the frontend page
-    const shareUrl = `${process.env.FRONTEND_URL || 'http://localhost:5174'}/shared/${req.params.id}`;
+    const shareUrl = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/shared/${req.params.id}`;
     res.json({ shareUrl });
   } catch (err) {
     res.status(500).send('Server Error');
