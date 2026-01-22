@@ -1,9 +1,11 @@
-    import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios';
 import { supabase } from '../supabase';
 import FileModal from '../components/FileModal';
 import Navbar from '../components/Navbar';
 import Dock from '../components/Dock';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+
 import { TbLayoutSidebarRightCollapseFilled, TbSailboatOff } from "react-icons/tb";
 import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
 
@@ -111,15 +113,31 @@ const DocumentsPage = () => {
 
     useEffect(() => { fetchDocs(); }, []);
 
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        window.location.href = '/login';
+    };
+
     // Helper to determine if file is an image
     const isImage = (path) => /\.(jpg|jpeg|png|webp|gif)$/i.test(path);
     const isPDF = (path) => /\.pdf$/i.test(path);
 
     return (
         <div className="min-h-screen w-full bg-gray-100 overflow-x-hidden">
-            <div className="text-xl w-full font-bold mb-8 fixed top-0">
+            <div className="w-full mb-8 fixed top-0">
                 {/* <span className="text-[#b15df6]">🧘</span> My Secure Vault */}
-                <Navbar />
+                <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-50">
+                    <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+                        <div className="flex items-center space-x-2">
+                            <ShieldCheckIcon className="h-8 w-8 text-indigo-600" />
+                            <span className="text-xl font-bold text-gray-800">GovVault</span>
+                        </div>
+                        <button onClick={handleLogout} className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+                            Logout
+                        </button>
+                    </div>
+                </nav>
             </div>
             {/* <div className="drawer md:drawer-open drawer-end mt-16 fixed">
                 <input id="my-drawer-5" type="checkbox" className="drawer-toggle" />
@@ -236,7 +254,7 @@ const DocumentsPage = () => {
                     <div className="absolute bottom-0 bg-indigo-600 rounded overflow-hidden flex items-center mx-auto w-full">
                         <label htmlFor="my-drawer-4" aria-label="open sidebar" onClick={() => setStatus(!status)} className="btn w-12 h-12 bg-indigo-600 border-none overflow-hidden mx-auto w-full">
                             {/* Sidebar toggle icon */}
-                            { !status ? <TbLayoutSidebarRightExpandFilled size="32" /> : <TbLayoutSidebarRightCollapseFilled size="32"/>}
+                            {!status ? <TbLayoutSidebarRightExpandFilled size="32" /> : <TbLayoutSidebarRightCollapseFilled size="32" />}
                         </label>
                     </div>
                 </div>

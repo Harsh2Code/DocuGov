@@ -3,6 +3,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { supabase } from '../supabase';
 import Dock from '../components/Dock';
+import { ShieldCheckIcon } from '@heroicons/react/24/solid';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -56,6 +57,13 @@ const Profile = () => {
     }
   };
 
+
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.href = '/login';
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -66,7 +74,17 @@ const Profile = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <Navbar />
+      <nav className="fixed top-0 left-0 right-0 bg-white shadow-sm border-b z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <ShieldCheckIcon className="h-8 w-8 text-indigo-600" />
+            <span className="text-xl font-bold text-gray-800">GovVault</span>
+          </div>
+          <button onClick={handleLogout} className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+            Logout
+          </button>
+        </div>
+      </nav>
       <div className="container mx-auto px-4 py-8 mt-16">
         <div className="max-w-sm sm:max-w-md lg:max-w-lg mx-auto bg-white rounded-lg shadow-md p-4 sm:p-6">
           <h1 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">Profile</h1>
