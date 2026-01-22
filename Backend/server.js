@@ -9,7 +9,7 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ['https://docu-gov.vercel.app', 'http://localhost:5173'],
+  origin: ['https://docu-gov.vercel.app', 'http://localhost:5173', 'https://docugov.onrender.com'],
   credentials: true
 }));
 app.use(express.json());

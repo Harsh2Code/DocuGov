@@ -2,6 +2,28 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import auth from '../middleware/auth.js';
+import multer from 'multer';
+import path from 'path';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['.png', '.jpg', '.jpeg'];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowedTypes.includes(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PNG, JPG, and JPEG images are allowed for profile pictures"));
+    }
+  }
+});
 
 const router = express.Router();
 
@@ -68,6 +90,62 @@ router.post('/login', async (req, res) => {
         console.log('Login error:', err);
         res.status(500).send('Server Error');
     }
+});
+
+router.put('/profile', [auth, upload.single('profilePicture')], async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    if (req.file) {
+      const filePath = `profile_pictures/${Date.now()}-${req.file.originalname}`;
+
+      // Upload to Supabase
+      const { data, error } = await supabase.storage
+        .from('VaultGov')
+        .upload(filePath, req.file.buffer, {
+          contentType: req.file.mimetype,
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      // Delete old profile picture if exists
+      if (user.profilePicture) {
+        const { error: deleteError } = await supabase.storage.from('VaultGov').remove([user.profilePicture]);
+        if (deleteError) console.error('Error deleting old profile picture:', deleteError);
+      }
+
+      user.profilePicture = filePath;
+    }
+
+    await user.save();
+    res.json({ msg: 'Profile updated successfully', user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+router.get('/profile', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    // Generate signed URL for profile picture if exists
+    let profilePictureUrl = null;
+    if (user.profilePicture) {
+      const { data, error } = await supabase.storage
+        .from('VaultGov')
+        .createSignedUrl(user.profilePicture, 3600); // 1 hour expiry
+      if (!error) profilePictureUrl = data.signedUrl;
+    }
+
+    res.json({ ...user.toObject(), profilePictureUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
 });
 
 export default router;

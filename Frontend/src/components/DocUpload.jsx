@@ -23,13 +23,25 @@ const DocUpload = ({ onUploadSuccess }) => {
       if (error) throw error;
 
       // 2. Save reference to MongoDB Atlas
-      await axios.post('http://localhost:5000/api/document/add', {
-        docType: type,
-        storagePath: filePath,
-        ownerName: "Self"
-      }, {
-        headers: { 'x-auth-token': localStorage.getItem('token') }
-      });
+      let res;
+      try {
+        res = await axios.post('http://localhost:5000/api/document/add', {
+          docType: type,
+          storagePath: filePath,
+          ownerName: "Self"
+        }, {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+      } catch (localErr) {
+        console.log('Localhost backend not available, trying deployed backend...');
+        res = await axios.post('https://docugov.onrender.com/api/document/add', {
+          docType: type,
+          storagePath: filePath,
+          ownerName: "Self"
+        }, {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+      }
 
       alert("Upload Successful!");
       setFile(null); // Reset file input

@@ -4,16 +4,21 @@ import { supabase } from '../supabase';
 import FileModal from '../components/FileModal';
 import Navbar from '../components/Navbar';
 import Dock from '../components/Dock';
+import { TbLayoutSidebarRightCollapseFilled, TbSailboatOff } from "react-icons/tb";
+import { TbLayoutSidebarRightExpandFilled } from "react-icons/tb";
+
+
 
 const DocumentsPage = () => {
     const [docs, setDocs] = useState([]);
     const [selectedDoc, setSelectedDoc] = useState(null);
     const [fileUrls, setFileUrls] = useState({})
     const [selectedLogo, setSelectedLogo] = useState("Self");
+    const [status, setStatus] = useState(false);
     const logos = {
         aadhar: {
             title: "Aadhar Card",
-            path: "./aadharCardlogo.png",
+            path: "./aadharCardlogo.jpg",
         },
         CBSE: {
             title: "CBSE",
@@ -41,7 +46,7 @@ const DocumentsPage = () => {
         },
         drivingLicense: {
             title: "License",
-            path: "./drivingLicense.avif",
+            path: "./drivingLicense.jpg",
         },
         KeralaGovt: {
             title: "Kerala Government",
@@ -57,7 +62,7 @@ const DocumentsPage = () => {
         },
         UttrakhandGovt: {
             title: "Uttrakhand Government",
-            path: "./ukGovt.png",
+            path: "./ukGovt.jpg",
         },
         PunjabGovt: {
             title: "Punjab Government",
@@ -65,7 +70,7 @@ const DocumentsPage = () => {
         },
         Self: {
             title: "Self",
-            path: "./self.png",
+            path: "./self.jpg",
         },
     }
 
@@ -73,9 +78,17 @@ const DocumentsPage = () => {
 
     const fetchDocs = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/document/list', {
-                headers: { 'x-auth-token': localStorage.getItem('token') }
-            });
+            let res;
+            try {
+                res = await axios.get('http://localhost:5000/api/document/list', {
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                });
+            } catch (localErr) {
+                console.log('Localhost backend not available, trying deployed backend...');
+                res = await axios.get('https://docugov.onrender.com/api/document/list', {
+                    headers: { 'x-auth-token': localStorage.getItem('token') }
+                });
+            }
             setDocs(res.data);
 
             // Fetch signed URLs for all documents
@@ -129,8 +142,14 @@ const DocumentsPage = () => {
                 </div>
             </div> */}
 
-            <div className="drawer lg:drawer-open drawer-end overflow-hidden">
+            <div className="drawer drawer-open drawer-end overflow-hidden">
                 <input id="my-drawer-4" type="checkbox" className="drawer-toggle" />
+                {/* Mobile toggle button */}
+                <label htmlFor="my-drawer-4" className="btn btn-circle btn-ghost lg:hidden fixed top-20 right-4 z-50 bg-white shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                </label>
                 <div className="drawer-content overflow-x-hidden">
 
                     {/* Page content here */}
@@ -185,7 +204,7 @@ const DocumentsPage = () => {
 
                 <div className="drawer-side relative overflow-hidden">
                     <label htmlFor="my-drawer-4" aria-label="close sidebar" className="drawer-overlay"></label>
-                    <div className="flex md:h-[100vh] flex-row items-start bg-gray-50 is-drawer-close:w-24 is-drawer-open:w-64 overflow-y-auto">
+                    <div className="flex h-[80vh] md:h-[100vh] flex-row items-start bg-gray-50 is-drawer-close:w-24 is-drawer-open:w-64 overflow-y-auto">
                         {/* Sidebar content here */}
                         <ul className="menu w-full grow pb-12">
                             {/* List item */}
@@ -215,9 +234,9 @@ const DocumentsPage = () => {
                         </ul>
                     </div>
                     <div className="absolute bottom-0 bg-indigo-600 rounded overflow-hidden flex items-center mx-auto w-full">
-                        <label htmlFor="my-drawer-4" aria-label="open sidebar" className="btn w-12 h-12 rounded overflow-hidden mx-auto btn-square btn-ghost">
+                        <label htmlFor="my-drawer-4" aria-label="open sidebar" onClick={() => setStatus(!status)} className="btn w-12 h-12 bg-indigo-600 border-none overflow-hidden mx-auto w-full">
                             {/* Sidebar toggle icon */}
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="10 10 16 16" strokeLinejoin="round" strokeLinecap="round" strokeWidth="2" fill="none" stroke="currentColor" className="my-1.5 inline-block size-4"><path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path><path d="M9 4v16"></path><path d="M14 10l2 2l-2 2"></path></svg>
+                            { !status ? <TbLayoutSidebarRightExpandFilled size="32" /> : <TbLayoutSidebarRightCollapseFilled size="32"/>}
                         </label>
                     </div>
                 </div>

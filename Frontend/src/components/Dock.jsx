@@ -8,7 +8,7 @@ const Dock = () => {
 
   return (
     <div
-      className="dock dock-lg w-2/10 mx-auto flex justify-center items-center gap-16 bg-gray-50 p-2 py-4 fixed bottom-5 left-0 right-0 z-50 rounded-lg"
+      className="dock w-8/10 dock-lg mb-4 md:w-2/10 mx-auto flex justify-center items-center gap-16 bg-gray-50 p-2 py-4 fixed bottom-5 left-0 right-0 z-50 rounded-lg"
       style={{
               boxShadow: "inset rgba(255, 255, 255, 1) 1px 3px 5px, 0 3px 5px #00000030"
             }}
@@ -29,7 +29,7 @@ const Dock = () => {
         {/* <span className="dock-label">Inbox</span> */}
       </button>
 
-      <button onClick={() => {setActiveButton('user'); navigate('/')}} className="flex flex-col items-center">
+      <button onClick={() => {setActiveButton('user'); navigate('/profile')}} className="flex flex-col items-center">
         <svg className="size-[1.2em]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <LuUser size={"26"} />
         </svg>

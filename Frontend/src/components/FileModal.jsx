@@ -41,9 +41,17 @@ const FileModal = ({ doc, onClose, refresh }) => {
         console.warn("File not found in Supabase, but cleaning up MongoDB anyway.");
       }
 
-      await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
-        headers: { 'x-auth-token': localStorage.getItem('token') }
-      });
+      let deleteRes;
+      try {
+        deleteRes = await axios.delete(`http://localhost:5000/api/document/${doc._id}`, {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+      } catch (localErr) {
+        console.log('Localhost backend not available, trying deployed backend...');
+        deleteRes = await axios.delete(`https://docugov.onrender.com/api/document/${doc._id}`, {
+          headers: { 'x-auth-token': localStorage.getItem('token') }
+        });
+      }
 
       alert("Deleted successfully");
       refresh();

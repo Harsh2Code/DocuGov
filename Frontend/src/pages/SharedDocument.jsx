@@ -11,7 +11,13 @@ const SharedDocument = () => {
   useEffect(() => {
     const fetchSharedDoc = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/document/get-shared/${id}`);
+        let res;
+        try {
+          res = await axios.get(`http://localhost:5000/api/document/get-shared/${id}`);
+        } catch (localErr) {
+          console.log('Localhost backend not available, trying deployed backend...');
+          res = await axios.get(`https://docugov.onrender.com/api/document/get-shared/${id}`);
+        }
         setDocData(res.data);
       } catch (err) {
         setError(err.response?.data?.msg || 'Failed to load document');
