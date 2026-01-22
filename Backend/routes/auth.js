@@ -29,10 +29,12 @@ const router = express.Router();
 
 router.post('/register', async (req, res) => {
     const { name, email, password, aadhaarNumber } = req.body;
+    console.log('Register attempt for email:', email);
 
     try {
         let user = await User.findOne({ email });
         if (user) {
+            console.log('User already exists for email:', email);
             return res.status(400).json({ msg: 'User already exists' });
         }
 
@@ -47,14 +49,20 @@ router.post('/register', async (req, res) => {
         });
 
         await user.save();
+        console.log('User registered successfully for email:', email);
 
         const jwtSecret = process.env.JWT_SECRET || 'myjwtsecret';
         const payload = { user: { id: user.id } };
         jwt.sign(payload, jwtSecret, { expiresIn: '7d' }, (err, token) => {
-            if (err) throw err;
+            if (err) {
+                console.log('JWT sign error during registration:', err);
+                throw err;
+            }
+            console.log('Registration successful for email:', email);
             res.json({ token });
         });
     } catch (err) {
+        console.log('Registration error for email:', email, 'Error:', err);
         res.status(500).send('Server Error');
     }
 });
@@ -76,7 +84,7 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 
-        const jwtSecret = process.env.JWT_SECRET || 'your_jwt_secret_here';
+        const jwtSecret = process.env.JWT_SECRET || 'myjwtsecret';
         const payload = { user: { id: user.id } };
         jwt.sign(payload, jwtSecret, { expiresIn: '7d' }, (err, token) => {
             if (err) {
