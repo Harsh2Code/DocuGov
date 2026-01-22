@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { supabase } from '../supabase';
 import Dock from '../components/Dock';
 import { ShieldCheckIcon } from '@heroicons/react/24/solid';
+import API_BASE_URL from '../apiConfig';
+import { useAuth } from '../AuthContext';
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -17,7 +20,7 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/auth/profile', {
+      const res = await axios.get(`${API_BASE_URL}/api/auth/profile`, {
         headers: { 'x-auth-token': localStorage.getItem('token') }
       });
       setUser(res.data);
@@ -39,7 +42,7 @@ const Profile = () => {
       const formData = new FormData();
       formData.append('profilePicture', file);
 
-      const res = await axios.put('http://localhost:5000/api/auth/profile', formData, {
+      const res = await axios.put(`${API_BASE_URL}/api/auth/profile`, formData, {
         headers: {
           'x-auth-token': localStorage.getItem('token'),
           'Content-Type': 'multipart/form-data'
@@ -59,15 +62,22 @@ const Profile = () => {
 
 
   
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
+    logout();
+    navigate('/login');
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
+      <div className="min-h-screen bg-gray-100">
+        <div className="mx-auto my-auto w-64 h-full py-64">
+          <img src="/undraw_loading_3kqt.svg" className='' alt="" />
+          <div className='text-center text-indigo-500 font-bold text-xl uppercase mt-16'> Loading</div>
+        </div>
+        
       </div>
     );
   }
